@@ -1,0 +1,247 @@
+/* ─── Wishes ─────────────────────────────────────────────────────────────
+   The one dark surface on the site. Everything else is a bright gradient,
+   so a night sky here reads as somewhere else entirely — which is the point
+   of looking up. Wishes are typed below and climb out through it.
+
+   The dark panel also solves a contrast problem: a wish is arbitrary text of
+   arbitrary length, so it needs a ground that can hold white type whatever
+   the gradient behind is doing.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.wishes {
+  /* The sky's own palette, local for the same reason the envelope's is. */
+  --sky-top: #2b0b33;
+  --sky-bottom: #100310;
+  --star: #fff6fb;
+
+  padding-block: clamp(1rem, 3vh, 2rem) clamp(3rem, 9vh, 5rem);
+}
+
+/* ─── The heading ────────────────────────────────────────────────────────
+   Shared with the other pages — see the page-header block in page.css.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* ─── The sky ────────────────────────────────────────────────────────── */
+
+.wishes-sky {
+  position: relative;
+  width: 100%;
+  height: clamp(200px, 32vh, 300px);
+  margin-top: clamp(1.25rem, 4vh, 2rem);
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  background: linear-gradient(to top, var(--sky-top), var(--sky-bottom));
+  box-shadow: 0 24px 54px -40px rgb(43 10 46 / 0.8);
+}
+
+/* A field of stars rather than a gradient wash: two sizes, one bright and
+   one dim, so the layer has a little depth instead of reading as dots. */
+.wishes-stars {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1.8px 1.8px at 6% 18%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 14% 62%, rgb(255 246 251 / 0.5), transparent),
+    radial-gradient(2.1px 2.1px at 23% 34%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 31% 78%, rgb(255 246 251 / 0.45), transparent),
+    radial-gradient(1.7px 1.7px at 39% 12%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 47% 52%, rgb(255 246 251 / 0.5), transparent),
+    radial-gradient(2.2px 2.2px at 55% 26%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 63% 70%, rgb(255 246 251 / 0.45), transparent),
+    radial-gradient(1.8px 1.8px at 71% 40%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 79% 16%, rgb(255 246 251 / 0.5), transparent),
+    radial-gradient(2px 2px at 87% 56%, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 94% 30%, rgb(255 246 251 / 0.45), transparent),
+    radial-gradient(1.6px 1.6px at 10% 40%, rgb(255 246 251 / 0.6), transparent),
+    radial-gradient(1.6px 1.6px at 44% 84%, rgb(255 246 251 / 0.55), transparent),
+    radial-gradient(1.6px 1.6px at 68% 88%, rgb(255 246 251 / 0.5), transparent),
+    radial-gradient(1.6px 1.6px at 92% 74%, rgb(255 246 251 / 0.55), transparent);
+  animation: twinkle 5.5s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ─── A wish on its way up ───────────────────────────────────────────── */
+
+.wishes-flight {
+  position: absolute;
+  bottom: 6%;
+  z-index: 1;
+  max-width: 16ch;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  color: var(--star);
+  font-size: var(--t--1);
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+  /* Centred on its own `left`, then carried up. */
+  animation: wish-rise var(--flight-duration, 8s) linear both;
+  pointer-events: none;
+}
+
+@keyframes wish-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, 0, 0) scale(0.88) rotate(var(--flight-tilt, 0deg));
+  }
+  12% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(-50% + var(--flight-drift, 0px)), -280px, 0)
+      scale(0.94) rotate(var(--flight-tilt, 0deg));
+  }
+}
+
+.wishes-count {
+  position: absolute;
+  inset: auto 0 0.85rem;
+  color: rgb(255 246 251 / 0.72);
+  font-size: var(--t--1);
+  text-align: center;
+}
+
+/* ─── Writing one ────────────────────────────────────────────────────── */
+
+.wishes-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: clamp(1.1rem, 3vh, 1.5rem);
+}
+
+.wishes-field {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.wishes-input {
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--ink);
+  font-size: var(--t-0);
+}
+
+.wishes-input::placeholder {
+  color: var(--ink-mute);
+}
+
+.wishes-send {
+  flex: none;
+  padding: 0.85rem 1.5rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: var(--t-0);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 0 0 var(--ink);
+  transition:
+    transform 260ms var(--ease-pop),
+    box-shadow 240ms var(--ease);
+}
+
+.wishes-send:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 8px 0 0 var(--ink);
+}
+
+.wishes-send:active {
+  transform: translate3d(0, 3px, 0);
+  box-shadow: 0 2px 0 0 var(--ink);
+}
+
+/* ─── Suggestions ────────────────────────────────────────────────────── */
+
+.wishes-suggestions {
+  margin-top: clamp(1.25rem, 3.5vh, 1.75rem);
+}
+
+.wishes-suggestions-label {
+  color: var(--ink-soft);
+  font-size: var(--t--1);
+}
+
+.wishes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wishes-chip {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgb(var(--purple-rgb) / 0.45);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.72);
+  color: var(--ink-soft);
+  font-size: var(--t--1);
+  cursor: pointer;
+  transition: background-color 220ms var(--ease), border-color 220ms var(--ease), color 220ms var(--ease);
+}
+
+.wishes-chip:hover {
+  background: #fff;
+  border-color: var(--purple-ink);
+  color: var(--ink);
+}
+
+/* ─── Phone ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 560px) {
+  .wishes-send {
+    flex: 1 1 100%;
+  }
+
+  .wishes-flight {
+    max-width: 13ch;
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────
+   Nothing floats up in this mode — the wish is still counted and the sky
+   still acknowledges it, so the interaction survives without the flight.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .wishes-stars,
+  .wishes-flight {
+    animation: none;
+  }
+
+  .wishes-flight {
+    display: none;
+  }
+
+  .wishes-send,
+  .wishes-chip {
+    transition: background-color 200ms linear;
+  }
+
+  .wishes-send:hover,
+  .wishes-send:active {
+    transform: none;
+  }
+}

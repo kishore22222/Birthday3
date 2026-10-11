@@ -1,0 +1,88 @@
+/* ─── Between the surprises ──────────────────────────────────────────────
+   Sits at the end of each page rather than pinned to the viewport, so it
+   never covers content on a small screen. Back is the quieter of the two:
+   going on is the thing most people want.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.pagenav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: clamp(2.5rem, 8vh, 4.5rem);
+}
+
+.pagenav-back,
+.pagenav-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.35rem;
+  border-radius: 999px;
+  font-size: var(--t-0);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 260ms var(--ease-pop),
+    background-color 240ms var(--ease),
+    box-shadow 240ms var(--ease);
+}
+
+.pagenav-back {
+  border: 2px solid rgb(var(--purple-rgb) / 0.5);
+  background: rgb(255 255 255 / 0.82);
+  color: var(--ink);
+}
+
+.pagenav-back:hover {
+  background: #fff;
+  border-color: var(--purple-ink);
+  transform: translate3d(-2px, 0, 0);
+}
+
+/* Ink on yellow is the highest-contrast pairing in the palette, which is
+   why the forward action wears it. */
+.pagenav-next {
+  border: 2px solid var(--ink);
+  background: var(--yellow);
+  color: var(--ink);
+  box-shadow: 0 6px 0 0 var(--ink);
+}
+
+.pagenav-next:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 8px 0 0 var(--ink);
+}
+
+.pagenav-next:active {
+  transform: translate3d(0, 3px, 0);
+  box-shadow: 0 2px 0 0 var(--ink);
+}
+
+.pagenav-arrow {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+@media (max-width: 460px) {
+  .pagenav {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .pagenav-back,
+  .pagenav-next {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagenav-back,
+  .pagenav-next {
+    transition: background-color 200ms linear;
+  }
+  .pagenav-back:hover,
+  .pagenav-next:hover,
+  .pagenav-next:active {
+    transform: none;
+  }
+}

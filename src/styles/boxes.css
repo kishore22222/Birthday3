@@ -1,0 +1,409 @@
+/* ─── The hub ────────────────────────────────────────────────────────────
+   Three heart-shaped gift boxes on the gradient. Everything is generated
+   from the heart itself: the wrapping is clipped to the same path, so the
+   ribbon can never spill past the shape it is wrapping.
+
+   Deliberately not cards. Three identical rounded panels is the shape any
+   page reaches for, so each box is just the heart and its label sitting on
+   the gradient, held up by one white glow — the same trick the gate and the
+   page headers use to keep ink readable over a moving background.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.boxes {
+  padding-block: clamp(1rem, 3vh, 2rem) clamp(3rem, 9vh, 5rem);
+}
+
+/* ─── The heading ────────────────────────────────────────────────────── */
+
+.boxes-intro {
+  position: relative;
+  isolation: isolate;
+  max-width: 46ch;
+}
+
+.boxes-intro::before {
+  content: '';
+  position: absolute;
+  inset: -22% -12%;
+  z-index: -1;
+  background: radial-gradient(
+    64% 74% at 38% 48%,
+    rgb(255 255 255 / 0.9) 0%,
+    rgb(255 255 255 / 0.52) 52%,
+    transparent 82%
+  );
+  filter: blur(20px);
+}
+
+.boxes-greeting {
+  color: var(--magenta-ink);
+  font-size: var(--t-1);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.boxes-heading {
+  margin-top: 0.3rem;
+  font-size: var(--t-3);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+/* Focus lands here on arrival, but it is a heading rather than a control,
+   so it shouldn't draw a ring for that. */
+.boxes-heading:focus,
+.boxes-heading:focus-visible {
+  outline: none;
+}
+
+/* ─── The row ────────────────────────────────────────────────────────── */
+
+.boxes-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2.5vw, 2rem);
+  margin: clamp(1.75rem, 6vh, 3.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.boxes-cell {
+  display: flex;
+  animation: box-arrive 760ms var(--ease-out) both;
+  /* One beat after another, left to right. */
+  animation-delay: calc(180ms + var(--beat, 0) * 140ms);
+}
+
+@keyframes box-arrive {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── A heart box ────────────────────────────────────────────────────── */
+
+.heartbox {
+  --hue: var(--hotpink);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 1.8vh, 0.9rem);
+  width: 100%;
+  padding: clamp(0.85rem, 2.6vh, 1.4rem) clamp(0.5rem, 1.6vw, 1rem);
+  border: 0;
+  border-radius: 24px;
+  background: none;
+  color: var(--ink);
+  text-align: center;
+  cursor: pointer;
+}
+
+/* The light each heart sits in. Deepening on hover is the whole affordance —
+   no lift, no scale, same restraint the gallery's photos show. */
+.heartbox::before {
+  content: '';
+  position: absolute;
+  inset: -6% -4%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    58% 62% at 50% 44%,
+    rgb(255 255 255 / 0.82) 0%,
+    rgb(255 255 255 / 0.4) 56%,
+    transparent 84%
+  );
+  filter: blur(18px);
+  opacity: 0.75;
+  transition: opacity 360ms var(--ease);
+}
+
+.heartbox:hover::before,
+.heartbox:focus-visible::before {
+  opacity: 1;
+}
+
+/* Each box gets its own colour from the palette. */
+.heartbox--magenta {
+  --hue: var(--magenta);
+}
+.heartbox--pink {
+  --hue: var(--hotpink);
+}
+.heartbox--purple {
+  --hue: var(--purple);
+}
+
+/* ─── The heart itself ───────────────────────────────────────────────── */
+
+.heartbox-stage {
+  position: relative;
+  display: block;
+  width: clamp(6rem, 19vw, 9.5rem);
+}
+
+.heartbox-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The bow lifts clear of the viewBox when the box opens. */
+  overflow: visible;
+  transition: transform 420ms var(--ease-pop);
+}
+
+.heartbox-fill {
+  fill: var(--hue);
+}
+
+.heartbox-edge {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+/* White satin: the highest contrast available on all three hues, so the
+   wrapping reads the same whichever heart it is on. */
+.heartbox-band {
+  fill: rgb(255 255 255 / 0.85);
+}
+
+.heartbox-sheen {
+  fill: rgb(255 255 255 / 0.4);
+}
+
+/* A highlight travelling across the wrapping, the way light moves over
+   something shiny. Long pause, quick pass. */
+.heartbox-shine {
+  fill: rgb(255 255 255 / 0.55);
+  animation: heart-sheen 4600ms ease-in-out infinite;
+}
+
+@keyframes heart-sheen {
+  0%,
+  58% {
+    transform: translateX(0) skewX(-18deg);
+  }
+  88%,
+  100% {
+    transform: translateX(150px) skewX(-18deg);
+  }
+}
+
+.heartbox-bow {
+  transform-origin: 50px 14px;
+  transition: transform 620ms var(--ease-out), opacity 420ms var(--ease);
+}
+
+.heartbox-loop,
+.heartbox-tail {
+  fill: rgb(255 255 255 / 0.92);
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.heartbox-knot {
+  fill: var(--yellow);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+/* ─── Sparkles ───────────────────────────────────────────────────────────
+   Outside the heart, so they read as light coming off it rather than
+   decoration printed on it.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.heartbox-sparkles {
+  position: absolute;
+  inset: -18%;
+  pointer-events: none;
+}
+
+.heartbox-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  clip-path: polygon(
+    50% 0%,
+    61% 39%,
+    100% 50%,
+    61% 61%,
+    50% 100%,
+    39% 61%,
+    0% 50%,
+    39% 39%
+  );
+  opacity: 0;
+  animation: sparkle 2800ms ease-in-out infinite;
+  animation-delay: calc(var(--spark, 0) * 320ms);
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  40% {
+    opacity: 0.95;
+    transform: scale(1) rotate(35deg);
+  }
+  70% {
+    opacity: 0.35;
+    transform: scale(0.85) rotate(60deg);
+  }
+}
+
+.heartbox-spark:nth-child(1) {
+  top: 12%;
+  left: 2%;
+}
+.heartbox-spark:nth-child(2) {
+  top: 2%;
+  left: 30%;
+}
+.heartbox-spark:nth-child(3) {
+  top: 6%;
+  right: 8%;
+}
+.heartbox-spark:nth-child(4) {
+  top: 46%;
+  right: -2%;
+}
+.heartbox-spark:nth-child(5) {
+  bottom: 12%;
+  left: 12%;
+}
+.heartbox-spark:nth-child(6) {
+  bottom: 4%;
+  right: 22%;
+}
+
+/* ─── The label ──────────────────────────────────────────────────────── */
+
+.heartbox-label {
+  display: block;
+}
+
+.heartbox-title {
+  display: block;
+  font-size: var(--t-1);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+/* A quiet pill rather than a panel: the hint is small text, and small text
+   on a gradient at full strength needs its own ground to stay readable. */
+.heartbox-hint {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.78);
+  color: var(--ink-soft);
+  font-size: var(--t--1);
+  line-height: 1.45;
+}
+
+/* ─── States ─────────────────────────────────────────────────────────── */
+
+/* The bow comes off before the page changes under her. */
+.heartbox.is-opening .heartbox-bow {
+  opacity: 0;
+  transform: translate3d(-14px, -30px, 0) rotate(-24deg);
+}
+
+.heartbox.is-opening .heartbox-art {
+  transform: scale(1.07);
+}
+
+/* Already been in. Reads as done without going grey — the heart keeps its
+   colour and simply stops advertising itself. */
+.heartbox.is-opened .heartbox-spark {
+  animation: none;
+}
+
+.heartbox.is-opened .heartbox-hint {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* ─── Phone ──────────────────────────────────────────────────────────────
+   Three hearts across 380px would be about a hundred pixels each, so they
+   become rows instead: heart on the left, label beside it. Same content,
+   a shape that suits a narrow screen.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .boxes-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    margin-top: clamp(1.25rem, 4vh, 2rem);
+  }
+
+  .heartbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0.7rem 0.75rem;
+    text-align: left;
+  }
+
+  .heartbox::before {
+    inset: 2% 0;
+    border-radius: 999px;
+    background: radial-gradient(
+      52% 70% at 22% 50%,
+      rgb(255 255 255 / 0.85) 0%,
+      rgb(255 255 255 / 0.42) 58%,
+      transparent 86%
+    );
+  }
+
+  .heartbox-stage {
+    flex: none;
+    width: clamp(4.5rem, 22vw, 6rem);
+  }
+
+  .heartbox-hint {
+    margin-top: 0.3rem;
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .boxes-cell {
+    animation: none;
+  }
+
+  .heartbox-spark,
+  .heartbox-shine {
+    animation: none;
+  }
+
+  /* The sparkles are the only thing that hints the box is alive, so with
+     them still they stay faintly on rather than vanishing entirely. */
+  .heartbox-spark {
+    opacity: 0.5;
+  }
+
+  .heartbox,
+  .heartbox-art,
+  .heartbox-bow,
+  .heartbox::before {
+    transition: opacity 200ms linear;
+  }
+
+  .heartbox.is-opening .heartbox-art {
+    transform: none;
+  }
+}

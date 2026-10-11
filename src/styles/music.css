@@ -1,0 +1,166 @@
+/* ─── Music ──────────────────────────────────────────────────────────────
+   Fixed low on the right, clear of the content column. The three bars move
+   only while something is actually playing, so the motion reports state
+   instead of decorating a button.
+
+   Near-white rather than a dark panel: this button sits over the bright
+   gradient on most pages and over the dark sky on one, and only a light
+   pill with a dark edge holds up on both.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.music {
+  position: fixed;
+  z-index: 20;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.music-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.35rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 16px 32px -22px rgb(43 10 46 / 0.7);
+}
+
+.music-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.95rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font-size: var(--t--1);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 240ms var(--ease);
+}
+
+.music-button:hover {
+  background: rgb(var(--magenta-rgb) / 0.12);
+}
+
+.music-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 13px;
+  height: 13px;
+}
+
+/* Uneven at rest, so three idle bars read as a level meter rather than an
+   ellipsis. The heights come back to these when the music stops — and each
+   bar keeps a colour of its own, so the meter reads as the party palette
+   rather than as a generic control. */
+.music-bars span {
+  flex: 1;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--hotpink);
+  transition: height 240ms var(--ease);
+}
+
+.music-bars span:nth-child(2) {
+  height: 58%;
+  background: var(--magenta);
+}
+
+.music-bars span:nth-child(3) {
+  height: 82%;
+  background: var(--purple);
+}
+
+.music-button.is-playing .music-bars span {
+  animation: bar 900ms ease-in-out infinite alternate;
+}
+
+.music-button.is-playing .music-bars span:nth-child(2) {
+  animation-duration: 640ms;
+}
+
+.music-button.is-playing .music-bars span:nth-child(3) {
+  animation-duration: 1120ms;
+}
+
+@keyframes bar {
+  from {
+    height: 26%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+.music-volume {
+  display: flex;
+  align-items: center;
+  padding-right: 0.4rem;
+}
+
+.music-volume input[type='range'] {
+  width: 4.5rem;
+  /* Colours the thumb and the filled half of the track in one declaration,
+     which beats hand-building the two vendor pseudo-elements. */
+  accent-color: var(--magenta-ink);
+  cursor: pointer;
+}
+
+/* Says where to put the file rather than failing silently on a click. */
+.music-missing {
+  max-width: 17rem;
+  padding: 0.55rem 0.8rem;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.94);
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: right;
+  box-shadow: 0 16px 32px -22px rgb(43 10 46 / 0.7);
+}
+
+@media (max-width: 420px) {
+  .music-controls {
+    padding-right: 0.5rem;
+  }
+
+  .music-button {
+    padding: 0.45rem 0.75rem;
+  }
+
+  /* The volume slider is the first thing to go when there isn't room for
+     it — the button she needs stays. */
+  .music-volume {
+    display: none;
+  }
+
+  .music-missing {
+    max-width: 13rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-button.is-playing .music-bars span {
+    animation: none;
+    height: 100%;
+  }
+
+  .music-button.is-playing .music-bars span:nth-child(2) {
+    height: 60%;
+  }
+
+  .music-button,
+  .music-bars span {
+    transition: background-color 200ms linear;
+  }
+}

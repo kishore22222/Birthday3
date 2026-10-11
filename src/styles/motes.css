@@ -1,0 +1,49 @@
+/* ─── Rising specks ──────────────────────────────────────────────────────
+   One batch per wish sent, plus a handful when the gate opens. Little
+   paper rectangles rather than glowing dots: on a bright page a glow has
+   nothing to glow against, but a tumbling scrap of colour reads clearly.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.motes {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mote {
+  position: absolute;
+  bottom: -2%;
+  width: var(--mote-size);
+  height: calc(var(--mote-size) * 1.6);
+  border-radius: 1px;
+  background: var(--mote-hue, var(--magenta));
+  box-shadow: 0 1px 3px rgb(43 10 46 / 0.22);
+  opacity: 0;
+  animation: rise var(--mote-duration, 4s) var(--ease-out) var(--mote-delay, 0s) both;
+}
+
+@keyframes rise {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(var(--mote-drift, 0), -102vh, 0)
+      rotate(var(--mote-spin, 360deg)) scale(1.05);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motes {
+    display: none;
+  }
+}

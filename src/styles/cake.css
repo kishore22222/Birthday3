@@ -1,0 +1,767 @@
+/* ─── The cake ───────────────────────────────────────────────────────────
+   Drawn rather than photographed, so it can actually come apart. The cake
+   is rendered twice — once per half — and each copy is clipped down the
+   middle line. That is what makes the cut possible: the two halves are the
+   same cake, so they line up exactly until the moment they part.
+
+   `--cut` is the drag position, 0 to 1, and it drives the knife and the
+   seam. `.is-cutting` is on while the knife is moving, `.is-cut` once it
+   has committed.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.cake {
+  position: relative;
+  padding-block: clamp(1rem, 3vh, 2rem) clamp(3rem, 9vh, 5rem);
+}
+
+/* ─── The heading ────────────────────────────────────────────────────────
+   Shared with the other pages — see the page-header block in page.css.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* ─── The stage ──────────────────────────────────────────────────────────
+   Touch drag needs the browser to stop panning the page sideways, which is
+   what `touch-action: none` buys here.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.cake-scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-top: clamp(1.25rem, 4vh, 2rem);
+  padding-block: clamp(2.5rem, 7vh, 4rem);
+  touch-action: none;
+  user-select: none;
+}
+
+.cake-body {
+  position: relative;
+  width: min(100%, 21rem);
+  /* Gives the halves somewhere to part into. Without it `translateZ` on the
+     cut would be a no-op and the split would stay flat. */
+  perspective: 820px;
+}
+
+/* Both halves hold the whole cake; only the clip differs. */
+.cake-half {
+  width: 100%;
+  /* --ease-pop overshoots, so the halves travel a little past their resting
+     place and settle back — the weight of two pieces of cake landing. */
+  transition: transform 900ms var(--ease-pop);
+}
+
+.cake-half--left {
+  clip-path: inset(-24% 50% -16% 0);
+  transform-origin: 100% 78%;
+}
+
+.cake-half--right {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(-24% 0 -16% 50%);
+  transform-origin: 0% 78%;
+}
+
+/* ─── The cut line ─────────────────────────────────────────────────────
+   Runs down the middle and grows from the top as the knife travels, so the
+   cut is visibly being made rather than appearing all at once.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.cake-body::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -14%;
+  bottom: -10%;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(43 10 46 / 0.5) 8%,
+    rgb(43 10 46 / 0.5) 90%,
+    transparent
+  );
+  transform: scaleY(var(--cut, 0));
+  transform-origin: top center;
+  opacity: 0;
+  transition: opacity 180ms var(--ease);
+  pointer-events: none;
+}
+
+.cake-scene.is-cutting .cake-body::after {
+  opacity: 1;
+}
+
+/* Once it has parted, the gap itself is the cut — the seam would only
+   draw a line down the space that just opened up. */
+.cake-scene.is-cut .cake-body::after {
+  opacity: 0;
+}
+
+/* They don't just slide apart — the left half comes toward her and the
+   right one recedes, which is the parallax: the two are separating in depth
+   as well as across, so the cut has an inside. */
+.cake-scene.is-cut .cake-half--left {
+  transform: translate3d(-1.5rem, 0.5rem, 0) rotate(-2.6deg) translateZ(36px);
+}
+
+.cake-scene.is-cut .cake-half--right {
+  transform: translate3d(1.5rem, 0.5rem, 0) rotate(2.6deg) translateZ(-30px);
+}
+
+/* ─── The cake ───────────────────────────────────────────────────────── */
+
+.cake-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.cake-tier {
+  position: relative;
+  border: 2px solid var(--ink);
+  border-radius: 7px;
+  background: var(--surface-solid);
+}
+
+/* The frosting caps each tier and drips over its edge. */
+.cake-frosting {
+  position: absolute;
+  inset: -0.5rem 0 auto 0;
+  height: 0.95rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px 999px 8px 8px;
+  background: var(--tier);
+}
+
+/* A row of half-circles hanging off the frosting, which is what reads as
+   icing rather than a stripe. */
+.cake-frosting::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 100%;
+  height: 0.75rem;
+  background: radial-gradient(circle at 0.38rem 0, var(--tier) 0.36rem, transparent 0.37rem)
+    repeat-x;
+  background-size: 0.76rem 0.76rem;
+}
+
+.cake-tier--base {
+  --tier: var(--hotpink);
+  width: 100%;
+  height: 3.6rem;
+}
+
+.cake-tier--mid {
+  --tier: var(--magenta);
+  width: 78%;
+  height: 3rem;
+  margin-top: 0.75rem;
+}
+
+.cake-tier--top {
+  --tier: var(--purple);
+  width: 56%;
+  height: 2.4rem;
+  margin-top: 0.75rem;
+}
+
+.cake-plate {
+  width: 116%;
+  height: 1.15rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.92);
+}
+
+/* ─── Candles ────────────────────────────────────────────────────────── */
+
+.cake-candles {
+  position: relative;
+  /* Above the tiers, so the glow falls on the top of the cake instead of
+     behind it. The tiers are positioned too, so without a z-index here the
+     light would paint first and be covered. */
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.6rem;
+  height: 2.4rem;
+}
+
+/* The pool of light the candles throw. Sits behind the flames and reaches
+   up past them, so the top of the cake is lit rather than just decorated.
+   Each half carries its own copy, which is why the split cuts the glow in
+   two along with everything else. */
+.cake-candles::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -2.5rem;
+  width: 11rem;
+  height: 7rem;
+  margin-left: -5.5rem;
+  /* Behind the candles, but inside the stacking context the z-index above
+     just made — so still in front of the tiers. */
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 76%,
+    rgb(255 214 10 / 0.52) 0%,
+    rgb(255 154 0 / 0.2) 40%,
+    transparent 72%
+  );
+  filter: blur(14px);
+  pointer-events: none;
+  opacity: 0.9;
+  animation: candle-glow 2.6s ease-in-out infinite;
+  transition: opacity 520ms var(--ease);
+}
+
+/* Only the scale pulses. The opacity is a plain declaration so that the cut
+   can transition it — an animation on the same property would outrank the
+   declaration and the glow would snap off the moment it stopped. */
+@keyframes candle-glow {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+.cake-candle {
+  position: relative;
+  width: 0.55rem;
+  height: 2rem;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    -52deg,
+    var(--candle-hue) 0 0.3rem,
+    #fff 0.3rem 0.6rem
+  );
+  /* Hinged at the base so the topple reads as falling over rather than
+     sliding sideways. */
+  transform-origin: 50% 100%;
+  /* Topple, then go out, then disappear — each candle a beat after the last,
+     which is what makes five of them read as a sequence instead of a state
+     change. */
+  transition:
+    transform 640ms var(--ease-pop) calc(var(--candle, 0) * 70ms),
+    opacity 320ms var(--ease) calc(520ms + var(--candle, 0) * 70ms);
+}
+
+.cake-candle:nth-child(5n + 1) {
+  --candle-hue: var(--hotpink);
+}
+.cake-candle:nth-child(5n + 2) {
+  --candle-hue: var(--purple);
+}
+.cake-candle:nth-child(5n + 3) {
+  --candle-hue: var(--cyan);
+}
+.cake-candle:nth-child(5n + 4) {
+  --candle-hue: var(--magenta);
+}
+.cake-candle:nth-child(5n + 5) {
+  --candle-hue: var(--yellow);
+}
+
+.cake-wick {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 2px;
+  height: 0.3rem;
+  margin-left: -1px;
+  background: var(--ink);
+}
+
+.cake-flame {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.3rem);
+  width: 0.72rem;
+  height: 1.1rem;
+  margin-left: -0.36rem;
+  border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+  background: radial-gradient(
+    circle at 50% 74%,
+    #fff 0 16%,
+    var(--yellow) 32%,
+    #ff9a00 66%,
+    #ff4d00 100%
+  );
+  box-shadow:
+    0 0 10px rgb(255 214 10 / 0.85),
+    0 0 26px rgb(255 154 0 / 0.6),
+    0 0 48px rgb(255 90 0 / 0.32);
+  transform-origin: 50% 100%;
+  /* Slightly different period per candle, so they drift out of step within a
+     few seconds instead of pulsing together. A shared duration with a phase
+     offset would keep them locked in the same rhythm forever. */
+  animation: flicker calc(900ms + var(--candle, 0) * 130ms) ease-in-out infinite;
+  animation-delay: calc(var(--candle, 0) * 180ms);
+}
+
+/* Taller, thinner, further off-centre than before — a flame that's actually
+   being disturbed rather than one breathing gently. */
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scale(1, 1) rotate(-2deg);
+  }
+  18% {
+    transform: scale(1.12, 0.86) rotate(3.4deg);
+  }
+  37% {
+    transform: scale(0.9, 1.14) rotate(-4deg);
+  }
+  58% {
+    transform: scale(1.1, 0.9) rotate(2.6deg);
+  }
+  76% {
+    transform: scale(0.95, 1.07) rotate(-1.6deg);
+  }
+  89% {
+    transform: scale(1.06, 0.95) rotate(1.2deg);
+  }
+}
+
+/* Every candle goes out on the cut — which is what the note underneath
+   says happened. The flame dies a moment after the candle starts to topple,
+   so the tilt and the going-out read as cause and effect. */
+.cake-scene.is-cut .cake-flame {
+  animation: none;
+  opacity: 0;
+  transform: scale(0.24) translateY(-0.3rem);
+  transition:
+    opacity 300ms var(--ease) calc(300ms + var(--candle, 0) * 70ms),
+    transform 300ms var(--ease) calc(300ms + var(--candle, 0) * 70ms);
+}
+
+/* And the candle itself goes over, splaying away from the middle by however
+   far from the middle it started. */
+.cake-scene.is-cut .cake-candle {
+  opacity: 0;
+  transform: translate3d(calc(var(--candle-lean, 0) * 0.6rem), 1.5rem, 0)
+    rotate(calc(var(--candle-lean, 0) * 14deg));
+}
+
+.cake-scene.is-cut .cake-candles::before {
+  animation: none;
+  opacity: 0;
+}
+
+/* ─── The knife ──────────────────────────────────────────────────────────
+   Vertical, blade down, sliding across the top of the cake as she drags.
+
+   Two boxes, because they do two different jobs. The outer one is a
+   full-width track that carries the knife across the cake — translating a
+   box by 100% of its own width moves it exactly one scene-width, and a
+   transform is the compositor's job rather than layout's. The inner rig is
+   the drawn knife, hinged and tilted on its own so the slice has some
+   weight to it.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.cake-knife {
+  position: absolute;
+  z-index: 4;
+  top: 4%;
+  left: 0;
+  width: 100%;
+  height: 64%;
+  cursor: grab;
+  transform: translate3d(calc(var(--cut, 0) * 100%), 0, 0);
+  transition:
+    transform 240ms var(--ease-out),
+    opacity 260ms var(--ease);
+}
+
+.cake-knife:active,
+.cake-scene.is-cutting .cake-knife {
+  cursor: grabbing;
+}
+
+.cake-knife-rig {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2.6rem;
+  margin-left: -1.3rem;
+  transform-origin: 50% 50%;
+  transition: transform 320ms var(--ease-pop);
+}
+
+/* Bearing down, and a touch larger for it — the knife reacting to being
+   pushed rather than just sliding. */
+.cake-scene.is-cutting .cake-knife-rig {
+  transform: rotate(-5deg) scale(1.07);
+}
+
+/* Once it has gone through, it lifts away rather than blinking out. */
+.cake-scene.is-cut .cake-knife {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* A highlight trailing the blade, so the stroke has a direction. */
+.cake-knife-trail {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 0.4rem;
+  height: 88%;
+  margin-left: -0.2rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0),
+    rgb(255 255 255 / 0.85) 30%,
+    rgb(255 255 255 / 0) 92%
+  );
+  filter: blur(3px);
+  opacity: 0;
+  transition: opacity 220ms var(--ease);
+}
+
+.cake-scene.is-cutting .cake-knife-trail {
+  opacity: 0.8;
+}
+
+.cake-knife-grip,
+.cake-knife-blade {
+  position: absolute;
+  left: 50%;
+}
+
+.cake-knife-grip {
+  top: 0;
+  width: 1rem;
+  height: 32%;
+  margin-left: -0.5rem;
+  border: 2px solid var(--ink);
+  border-radius: 7px 7px 4px 4px;
+  background: linear-gradient(to right, #5a1a8f, var(--purple) 44%, #6b21a8);
+}
+
+.cake-knife-blade {
+  top: 31%;
+  width: 1.2rem;
+  height: 66%;
+  margin-left: -0.6rem;
+  border: 2px solid var(--ink);
+  border-radius: 3px 3px 46% 46% / 3px 3px 100% 100%;
+  background: linear-gradient(to right, #b9c3cd, #fff 42%, #98a4af);
+}
+
+/* ─── Fireworks ──────────────────────────────────────────────────────── */
+
+.firework {
+  position: absolute;
+  z-index: 5;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.firework-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: burst 1100ms var(--ease-out) var(--burst-delay, 0s) both;
+}
+
+.firework-spark:nth-child(5n + 1) {
+  background: var(--hotpink);
+}
+.firework-spark:nth-child(5n + 2) {
+  background: var(--purple);
+}
+.firework-spark:nth-child(5n + 3) {
+  background: var(--cyan);
+}
+.firework-spark:nth-child(5n + 4) {
+  background: var(--magenta);
+}
+.firework-spark:nth-child(5n + 5) {
+  background: var(--yellow);
+}
+
+@keyframes burst {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--spoke, 0) * 25.714deg)) translateY(0) scale(0.4);
+  }
+  14% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--spoke, 0) * 25.714deg)) translateY(-5.5rem) scale(0.65);
+  }
+}
+
+/* ─── The shout ──────────────────────────────────────────────────────────
+   It lands over the cake rather than beside it. By this point the cake has
+   already been cut, and a banner across the middle is the shape the moment
+   wants — a line of text tucked underneath would read as a caption.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.cake-shout {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 50%;
+  width: max-content;
+  max-width: min(90vw, 20ch);
+  padding: 0.5rem 1.4rem;
+  border-radius: 20px;
+  background: rgb(255 255 255 / 0.9);
+  backdrop-filter: blur(6px);
+  color: var(--ink);
+  font-size: var(--t-3);
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  text-wrap: balance;
+  opacity: 0;
+  /* Small and skewed, so --ease-pop's overshoot has somewhere to go: it
+     springs past full size and settles back. */
+  transform: translate3d(-50%, -50%, 0) scale(0.55) rotate(-4.5deg);
+  transition:
+    opacity 240ms var(--ease),
+    transform 780ms var(--ease-pop);
+  pointer-events: none;
+}
+
+.cake-shout.is-shown {
+  opacity: 1;
+  transform: translate3d(-50%, -50%, 0) scale(1) rotate(0deg);
+}
+
+/* ─── Status and controls ────────────────────────────────────────────── */
+
+.cake-status {
+  min-height: 1.6em;
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+  font-size: var(--t--1);
+}
+
+.cake-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(0.75rem, 2.5vh, 1.25rem);
+}
+
+.cake-cut,
+.cake-again {
+  padding: 0.85rem 1.5rem;
+  border-radius: 999px;
+  font-size: var(--t-0);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 260ms var(--ease-pop),
+    background-color 240ms var(--ease),
+    box-shadow 240ms var(--ease);
+}
+
+/* Ink on yellow is the strongest pairing in the palette, so the action she
+   is meant to take wears it — same language as the forward nav button. */
+.cake-cut {
+  border: 2px solid var(--ink);
+  background: var(--yellow);
+  color: var(--ink);
+  box-shadow: 0 6px 0 0 var(--ink);
+}
+
+.cake-cut:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 8px 0 0 var(--ink);
+}
+
+.cake-cut:active {
+  transform: translate3d(0, 3px, 0);
+  box-shadow: 0 2px 0 0 var(--ink);
+}
+
+/* While the knife is walking across, the button has already been answered —
+   pressing it again would only start a second slide. */
+.cake-cut:disabled {
+  cursor: default;
+  opacity: 0.75;
+  transform: translate3d(0, 3px, 0);
+  box-shadow: 0 2px 0 0 var(--ink);
+}
+
+.cake-again {
+  border: 2px solid rgb(var(--purple-rgb) / 0.5);
+  background: rgb(255 255 255 / 0.82);
+  color: var(--ink);
+}
+
+.cake-again:hover {
+  background: #fff;
+  border-color: var(--purple-ink);
+  transform: translate3d(-2px, 0, 0);
+}
+
+.cake-again:active {
+  transform: translate3d(-2px, 3px, 0) scale(0.98);
+}
+
+/* ─── Balloons ───────────────────────────────────────────────────────────
+   Confined to the page they were thrown on, so they can't drift over the
+   footer or the music button.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.balloons {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.balloon {
+  position: absolute;
+  bottom: -18%;
+  width: var(--balloon-size);
+  height: calc(var(--balloon-size) * 1.16);
+  border: 2px solid var(--ink);
+  border-radius: 50% 50% 46% 46%;
+  background:
+    radial-gradient(circle at 34% 26%, rgb(255 255 255 / 0.8), transparent 44%),
+    var(--balloon-hue);
+  /* Plain `ease-out` rather than the house --ease-out token: the token is
+     very front-loaded, which would have the balloons at the top of the
+     screen a third of the way through and then hanging there. */
+  animation: balloon-rise var(--balloon-duration, 7s) ease-out var(--balloon-delay, 0s) both;
+}
+
+.balloon-string {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 2.4rem;
+  background: linear-gradient(to bottom, rgb(43 10 46 / 0.65), transparent);
+}
+
+@keyframes balloon-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(-3deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(var(--balloon-sway, 0), -58vh, 0) rotate(3deg);
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--balloon-sway, 0) * -1), -118vh, 0) rotate(-2deg);
+  }
+}
+
+/* ─── Phone ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 560px) {
+  .cake-body {
+    width: min(100%, 16rem);
+  }
+
+  .cake-scene {
+    padding-block: clamp(2rem, 6vh, 3rem);
+  }
+
+  /* Less travel, or the halves would part past the edge of the screen — and
+     less depth, since the smaller cake doesn't have the room to spare. */
+  .cake-scene.is-cut .cake-half--left {
+    transform: translate3d(-0.85rem, 0.4rem, 0) rotate(-2.2deg) translateZ(22px);
+  }
+
+  .cake-scene.is-cut .cake-half--right {
+    transform: translate3d(0.85rem, 0.4rem, 0) rotate(2.2deg) translateZ(-18px);
+  }
+
+  .cake-shout {
+    font-size: var(--t-2);
+  }
+
+  .cake-cut,
+  .cake-again {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────
+   The knife isn't rendered in this mode at all — the button below does the
+   same job — so this only has to settle the cake itself.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .cake-flame,
+  .firework-spark,
+  .balloon,
+  .cake-candles::before {
+    animation: none;
+  }
+
+  /* Everything keeps its cut-state change, but arrives by fading instead of
+     moving. The candle still goes out; it just doesn't fall over. */
+  .cake-half,
+  .cake-shout,
+  .cake-shout.is-shown,
+  .cake-flame,
+  .cake-candle,
+  .cake-body::after {
+    transition: opacity 200ms linear;
+  }
+
+  .cake-shout,
+  .cake-shout.is-shown {
+    transform: translate3d(-50%, -50%, 0);
+  }
+
+  .cake-scene.is-cut .cake-half--left,
+  .cake-scene.is-cut .cake-half--right,
+  .cake-scene.is-cut .cake-candle {
+    transform: none;
+  }
+
+  .cake-cut,
+  .cake-again {
+    transition: background-color 200ms linear;
+  }
+
+  .cake-cut:hover,
+  .cake-cut:active,
+  .cake-cut:disabled,
+  .cake-again:hover,
+  .cake-again:active {
+    transform: none;
+  }
+}

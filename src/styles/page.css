@@ -1,0 +1,142 @@
+/* ─── Page shell ─────────────────────────────────────────────────────────
+   Section rhythm is decided here and nowhere else; each page's own
+   stylesheet owns only what happens inside it. That keeps the vertical
+   spacing from being fought over by two files.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.shell {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.shell-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding: clamp(1.75rem, 6vh, 4rem) clamp(1rem, 5vw, 4rem)
+    clamp(7rem, 16vh, 9rem);
+  animation: page-in 520ms var(--ease-out) both;
+}
+
+/* The transition between surprises. One move, not a sequence — each page
+   has its own entrance inside it. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Page headers ───────────────────────────────────────────────────────
+   Four of the five pages open the same way: one heading, optionally a line
+   under it, sitting straight on the gradient rather than on a panel. That is
+   only readable because of the glow behind it — a blurred white radial that
+   lifts the ground from about 3.9:1 to better than 7:1 without drawing a box
+   around the words.
+
+   Defined once here and shared, so the trick can't drift out of step between
+   pages. The hub is the exception: its greeting sits above its heading and
+   needs the same lift, so Boxes.jsx puts the glow on the wrapper instead.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.letter-heading,
+.gallery-heading,
+.cake-heading,
+.wishes-heading {
+  position: relative;
+  isolation: isolate;
+  width: fit-content;
+  max-width: 100%;
+  font-size: var(--t-3);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.letter-heading::before,
+.gallery-heading::before,
+.cake-heading::before,
+.wishes-heading::before {
+  content: '';
+  position: absolute;
+  inset: -40% -18%;
+  z-index: -1;
+  background: radial-gradient(
+    60% 74% at 34% 50%,
+    rgb(255 255 255 / 0.9) 0%,
+    rgb(255 255 255 / 0.5) 52%,
+    transparent 84%
+  );
+  filter: blur(18px);
+}
+
+/* Focus lands on these on every route change so keyboard and screen-reader
+   users arrive at the top of the new page. They aren't interactive, so they
+   shouldn't draw a ring for it — the move is navigation, not a control. */
+.letter-heading:focus,
+.letter-heading:focus-visible,
+.gallery-heading:focus,
+.gallery-heading:focus-visible,
+.cake-heading:focus,
+.cake-heading:focus-visible,
+.wishes-heading:focus,
+.wishes-heading:focus-visible {
+  outline: none;
+}
+
+.gallery-invitation,
+.cake-invitation,
+.wishes-invitation {
+  max-width: 46ch;
+  margin-top: 0.6rem;
+  color: var(--ink-soft);
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────── */
+
+/* Only the relock button lives here now — parked bottom-right, above the
+   music player. */
+.shell-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.6rem 1.5rem;
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding: 0 clamp(1rem, 5vw, 4rem) clamp(5.5rem, 13vh, 7rem);
+}
+
+.shell-relock {
+  /* Sits on the gradient at a small size, so it gets the same white pill
+     rather than relying on ink alone. */
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.72);
+  color: var(--ink-soft);
+  font-size: var(--t--1);
+  border: 0;
+  cursor: pointer;
+  transition: background-color 240ms var(--ease), color 240ms var(--ease);
+}
+
+.shell-relock:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-page {
+    animation: none;
+  }
+}

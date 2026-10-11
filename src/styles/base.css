@@ -1,0 +1,202 @@
+/* ─── Tokens ─────────────────────────────────────────────────────────────
+   A party palette: five saturated colours at full strength, on paper
+   rather than night sky. The gradient is the loudest thing on the page,
+   so everything else is either near-white or near-black and gets out of
+   its way.
+
+   One hard constraint shapes the whole system. The gradient's luminance
+   swings from #9D4EDD (dark) to #FFD60A (bright) as it animates, so no
+   single text colour holds 4.5:1 across the sweep — plum ink manages
+   3.87:1 against the purple stop, white only 1.7:1 against the cyan.
+   Hence the split:
+     - display type sits straight on the gradient (large text needs 3:1)
+     - body copy sits on --surface, which holds it at ~13:1
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* The five, at full strength. Decoration only — never text. */
+  --hotpink: #ff1493;
+  --purple: #9d4edd;
+  --cyan: #00d9ff;
+  --magenta: #ff006e;
+  --yellow: #ffd60a;
+
+  --hotpink-rgb: 255 20 147;
+  --purple-rgb: 157 78 221;
+  --cyan-rgb: 0 217 255;
+  --magenta-rgb: 255 0 110;
+  --yellow-rgb: 255 214 10;
+
+  /* Ground and reading surfaces. --surface is deliberately translucent:
+     the gradient keeps moving underneath the letter and the gallery
+     instead of being walled off from them. */
+  --paper: #fff8fc;
+  --surface: rgb(255 251 253 / 0.82);
+  --surface-solid: #fffcfe;
+
+  /* Ink. Deep plum rather than black, so the page reads warm. */
+  --ink: #2b0a2e;
+  --ink-soft: #4a1f50;
+  --ink-mute: #6b3a70;
+
+  /* Darkened shades of the palette, for accent copy on light surfaces.
+     The full-strength colours above are far too light to set type in. */
+  --magenta-ink: #c70057;
+  --purple-ink: #7b2cbf;
+
+  --rule: rgb(157 78 221 / 0.22);
+  --rule-rgb: 157 78 221;
+
+  --display: 'Fraunces', 'Hoefler Text', 'Iowan Old Style', Georgia, serif;
+  --body: 'Hanken Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Fraunces' soft + wonk axes are what make it feel handmade rather
+     than editorial. Pushed to full soft here for the playful register. */
+  --display-axes: 'SOFT' 100, 'WONK' 1;
+
+  --measure: 62ch;
+  --page: 1140px;
+
+  /* Type scale, ~1.26 ratio, fluid between 380px and 1140px. */
+  --t--1: clamp(0.84rem, 0.8rem + 0.2vw, 0.92rem);
+  --t-0: clamp(1rem, 0.96rem + 0.22vw, 1.12rem);
+  --t-1: clamp(1.18rem, 1.1rem + 0.4vw, 1.4rem);
+  --t-2: clamp(1.45rem, 1.3rem + 0.8vw, 2rem);
+  --t-3: clamp(1.9rem, 1.55rem + 1.7vw, 3rem);
+  --t-4: clamp(2.3rem, 1.6rem + 3.4vw, 4.6rem);
+
+  --ease: cubic-bezier(0.22, 0.75, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* The overshoot that makes a control feel springy rather than smooth.
+     Used only on things you press. */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+figure,
+blockquote {
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: var(--t-0);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.002em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ─── Type ───────────────────────────────────────────────────────────── */
+
+.display {
+  font-family: var(--display);
+  font-variation-settings: var(--display-axes);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+}
+
+p {
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+/* ─── Shared ─────────────────────────────────────────────────────────── */
+
+.page {
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
+}
+
+.hairline {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--rule) 12%,
+    var(--rule) 70%,
+    transparent
+  );
+}
+
+/* A sunny marker swipe behind text. The one piece of decoration that is
+   allowed to be loud, because it also does a job: ink on yellow is the
+   highest-contrast pairing in the palette, so anything wearing it stays
+   readable even where the gradient is at its darkest. */
+.marked {
+  background-image: linear-gradient(
+    transparent 58%,
+    rgb(var(--yellow-rgb) / 0.9) 58%,
+    rgb(var(--yellow-rgb) / 0.9) 94%,
+    transparent 94%
+  );
+  background-repeat: no-repeat;
+  /* Spills a little past the glyphs, the way a real marker would. */
+  padding-inline: 0.12em;
+  margin-inline: -0.12em;
+  color: var(--ink);
+}
+
+/* One focus treatment for the whole page. Plum rather than a palette
+   colour: it is the only ink that clears 3:1 against all five stops, so
+   the ring stays visible wherever the gradient happens to be. */
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+::selection {
+  background: var(--yellow);
+  color: var(--ink);
+}

@@ -1,0 +1,240 @@
+
+/* ─── The gallery ─────────────────────────────────────────────────────── */
+
+.gallery {
+  padding-block: clamp(1rem, 3vh, 2rem) clamp(3rem, 10vh, 6rem);
+}
+
+/* ─── The heading ─────────────────────────────────────────────────────── */
+
+.gallery-list {
+  margin: clamp(1.25rem, 4vh, 2rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ─── One memory ──────────────────────────────────────────────────────── */
+
+.memory {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  padding-block: clamp(2.5rem, 8vh, 4.5rem);
+
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 760ms var(--ease-out),
+    transform 760ms var(--ease-out);
+}
+
+.memory.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.memory + .memory {
+  border-top: 1px solid var(--rule);
+}
+
+.memory--flipped .memory-figure {
+  order: 2;
+}
+
+/* ─── The photo ───────────────────────────────────────────────────────── */
+
+.memory-figure {
+  position: relative;
+  margin: 0;
+}
+
+/* Light behind the photo */
+.memory-figure::after {
+  content: '';
+  position: absolute;
+  inset: 8% 6%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(var(--magenta-rgb) / 0.3),
+    transparent 70%
+  );
+  filter: blur(42px);
+  opacity: 0.7;
+  transition: opacity 420ms var(--ease);
+}
+
+.memory:nth-child(even) .memory-figure::after {
+  background: radial-gradient(
+    circle,
+    rgb(var(--purple-rgb) / 0.3),
+    transparent 70%
+  );
+}
+
+/* Shared photo and placeholder styles */
+.memory-photo,
+.memory-empty {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: var(--surface-solid);
+  box-shadow: 0 24px 44px -34px rgb(43 10 46 / 0.55);
+
+  transform: rotate(-1.1deg);
+
+  transition:
+    transform 520ms var(--ease-out),
+    border-color 420ms var(--ease);
+}
+
+/* Alternating photo angle */
+.memory--flipped .memory-photo,
+.memory--flipped .memory-empty {
+  transform: rotate(1.3deg);
+}
+
+/* Default image cropping */
+.memory-photo {
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* ─── FIX: LAST PHOTO FACE ALIGNMENT ────────────────────────────────────
+   Applies only to img12.jpeg.
+   Adjust 20% if the face needs further repositioning.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.memory-photo[src$="img12.jpeg"] {
+  object-position: center 20%;
+}
+
+/* Straightens the photo on hover */
+.memory-figure:hover .memory-photo,
+.memory-figure:hover .memory-empty {
+  transform: rotate(0deg);
+}
+
+.memory-figure:hover::after {
+  opacity: 1;
+}
+
+/* ─── Empty photo placeholder ─────────────────────────────────────────── */
+
+.memory-empty {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgb(var(--rule-rgb) / 0.07) 0 10px,
+      transparent 10px 20px
+    ),
+    var(--surface);
+
+  color: var(--ink-mute);
+  font-size: var(--t--1);
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.memory-empty code {
+  font-family: ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  color: var(--magenta-ink);
+}
+
+/* ─── The story ───────────────────────────────────────────────────────── */
+
+.memory-story {
+  position: relative;
+  isolation: isolate;
+}
+
+.memory-story::before {
+  content: '';
+  position: absolute;
+  inset: -18% -12%;
+  z-index: -1;
+
+  background: radial-gradient(
+    68% 78% at 34% 46%,
+    rgb(255 255 255 / 0.86) 0%,
+    rgb(255 255 255 / 0.44) 54%,
+    transparent 84%
+  );
+
+  filter: blur(22px);
+}
+
+.memory-title {
+  font-size: var(--t-2);
+  font-weight: 500;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.memory-text {
+  max-width: 44ch;
+  margin-top: 0.75rem;
+  color: var(--ink-soft);
+}
+
+/* ─── Mobile layout ───────────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .memory {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding-block: clamp(2.25rem, 7vh, 3rem);
+  }
+
+  .memory--flipped .memory-figure {
+    order: 0;
+  }
+
+  .memory-photo,
+  .memory-empty {
+    aspect-ratio: 5 / 4;
+    transform: rotate(-0.7deg);
+  }
+
+  .memory--flipped .memory-photo,
+  .memory--flipped .memory-empty {
+    transform: rotate(0.8deg);
+  }
+
+  /* Keep the last photo's custom crop on mobile too */
+  .memory-photo[src$="img12.jpeg"] {
+    object-position: center 20%;
+  }
+}
+
+/* ─── Reduced motion accessibility ────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .memory {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .memory-photo,
+  .memory-empty {
+    transition: border-color 200ms linear;
+  }
+
+  .memory-figure:hover .memory-photo,
+  .memory-figure:hover .memory-empty {
+    transform: rotate(-1.1deg);
+  }
+}

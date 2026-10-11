@@ -1,0 +1,84 @@
+/* ─── Confetti ───────────────────────────────────────────────────────────
+   Thrown for three moments only — the gate opening, the letter opening,
+   the cake being cut. Fixed and un-clickable, so a burst never gets in the
+   way of what she was doing.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease);
+}
+
+/* "Put it back together" fades the burst rather than deleting it, so the
+   confetti leaves at the same speed the cake does. */
+.confetti.is-clearing {
+  opacity: 0;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: var(--piece-size);
+  height: calc(var(--piece-size) * 0.55);
+  background: var(--piece-hue);
+  opacity: 0;
+  /* Linear, deliberately. Gravity isn't a single easing curve — it's a
+     changing rate — so the acceleration is built into where the keyframes
+     sit instead: each stage below travels further than the one before it
+     while taking the same share of the time. A bezier can't also carry the
+     horizontal flutter. */
+  animation: fall var(--piece-duration, 3s) linear var(--piece-delay, 0s) both;
+}
+
+.confetti-piece.is-round {
+  width: calc(var(--piece-size) * 0.7);
+  height: calc(var(--piece-size) * 0.7);
+  border-radius: 50%;
+}
+
+@keyframes fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -14vh, 0) rotate(0deg) scale(0.6);
+  }
+  10% {
+    opacity: 1;
+  }
+  /* Hardly any height in the first third — a piece thrown upward spends
+     that part of its flight still giving up the throw. `--piece-drift` is
+     where it ends up; `--piece-flutter` is the wobble around that path. */
+  30% {
+    transform: translate3d(
+        calc(var(--piece-drift, 0px) * 0.2 + var(--piece-flutter, 0px) * 0.5),
+        4vh,
+        0
+      )
+      rotate(calc(var(--piece-spin, 360deg) * 0.18)) scale(1);
+  }
+  62% {
+    transform: translate3d(
+        calc(var(--piece-drift, 0px) * 0.55 - var(--piece-flutter, 0px) * 0.55),
+        34vh,
+        0
+      )
+      rotate(calc(var(--piece-spin, 360deg) * 0.47)) scale(1);
+  }
+  86% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--piece-drift, 0px), 104vh, 0)
+      rotate(var(--piece-spin, 360deg)) scale(1);
+  }
+}
+
+/* No fall, no clearing — the pieces simply never appear. */
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}
