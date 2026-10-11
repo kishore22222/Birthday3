@@ -94,7 +94,7 @@ export const memories = [
     alt: 'Nija smiling brightly in a sunlit moment',
     title: 'The same laugh, all these years',
     story:
-      'You’ve changed jobs, cities and haircuts. The laugh hasn’t moved an inch. It’s still the sound I listen for when I walk into a room full of people.',
+      'The laugh hasn’t moved an inch. It’s still the sound I listen for when I walk into a room full of people.',
   },
   {
     src: '/photos/img2.jpeg',
@@ -108,7 +108,7 @@ export const memories = [
     alt: 'Nija caught in a candid, genuine laugh',
     title: 'Still the first call',
     story:
-      'Good news, bad news, nothing-much news. The order hasn’t changed since we were kids and I don’t think it’s going to.',
+      'Good news, bad news, nothing-much news. The order hasn’t changed since you were kids and I don’t think it’s going to.',
   },
   {
     src: '/photos/img4.jpeg',
@@ -137,7 +137,7 @@ export const memories = [
     alt: 'Nija sharing a warm, joyful moment',
     title: 'Side by side',
     story:
-      'Through every season, through every high and low — you’ve always been the kind of person worth standing beside. Thank you for being that constant in so many lives.',
+      'Through every season, through every high and low — you’ve always been the kind of person worth standing beside.',
   },
   {
     src: '/photos/img9.jpeg',
