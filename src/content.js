@@ -206,7 +206,7 @@ export const wishes = {
 export const music = {
   // Everything in public/ is served from the root, so this is /music/... —
   // NOT /public/music/..., which 404s and makes the player say it's missing.
-  src: '/music/song1.mpeg',
+  src: '/music/audio2.mpeg',
   playAction: 'Play the song',
   pauseAction: 'Pause the song',
   volumeLabel: 'Volume',

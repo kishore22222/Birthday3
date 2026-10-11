@@ -1,11 +1,11 @@
 
-/* ─── The gallery ─────────────────────────────────────────────────────── */
+/* ─── The gallery ──────────────────────────────────────────────────────── */
 
 .gallery {
   padding-block: clamp(1rem, 3vh, 2rem) clamp(3rem, 10vh, 6rem);
 }
 
-/* ─── The heading ─────────────────────────────────────────────────────── */
+/* ─── The heading ──────────────────────────────────────────────────────── */
 
 .gallery-list {
   margin: clamp(1.25rem, 4vh, 2rem) 0 0;
@@ -46,21 +46,26 @@
 
 .memory-figure {
   position: relative;
+  width: 100%;
+  min-width: 0;
   margin: 0;
 }
 
 /* Light behind the photo */
+
 .memory-figure::after {
   content: '';
   position: absolute;
   inset: 8% 6%;
   z-index: 0;
   border-radius: 50%;
+
   background: radial-gradient(
     circle,
     rgb(var(--magenta-rgb) / 0.3),
     transparent 70%
   );
+
   filter: blur(42px);
   opacity: 0.7;
   transition: opacity 420ms var(--ease);
@@ -74,16 +79,20 @@
   );
 }
 
-/* Shared photo and placeholder styles */
+/* Photo and placeholder frame */
+
 .memory-photo,
 .memory-empty {
   position: relative;
   z-index: 1;
   display: block;
   width: 100%;
+  box-sizing: border-box;
   aspect-ratio: 4 / 5;
+
   border: 2px solid var(--ink);
   border-radius: 4px;
+
   background: var(--surface-solid);
   box-shadow: 0 24px 44px -34px rgb(43 10 46 / 0.55);
 
@@ -95,27 +104,27 @@
 }
 
 /* Alternating photo angle */
+
 .memory--flipped .memory-photo,
 .memory--flipped .memory-empty {
   transform: rotate(1.3deg);
 }
 
-/* Default image cropping */
+/* Default image fitting */
+
 .memory-photo {
   object-fit: cover;
   object-position: center center;
 }
 
-/* ─── FIX: LAST PHOTO FACE ALIGNMENT ────────────────────────────────────
-   Applies only to img12.jpeg.
-   Adjust 20% if the face needs further repositioning.
-   ─────────────────────────────────────────────────────────────────────── */
+/* Last photo: fine-tune the face crop */
 
 .memory-photo[src$="img12.jpeg"] {
   object-position: center 20%;
 }
 
-/* Straightens the photo on hover */
+/* Straighten the photo on hover */
+
 .memory-figure:hover .memory-photo,
 .memory-figure:hover .memory-empty {
   transform: rotate(0deg);
@@ -148,7 +157,13 @@
 }
 
 .memory-empty code {
-  font-family: ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
+  font-family:
+    ui-monospace,
+    'Cascadia Mono',
+    Menlo,
+    Consolas,
+    monospace;
+
   font-size: 0.92em;
   color: var(--magenta-ink);
 }
@@ -157,6 +172,7 @@
 
 .memory-story {
   position: relative;
+  min-width: 0;
   isolation: isolate;
 }
 
@@ -194,28 +210,82 @@
 @media (max-width: 760px) {
   .memory {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-    padding-block: clamp(2.25rem, 7vh, 3rem);
+    gap: 1.25rem;
+    padding-block: clamp(2rem, 6vh, 3rem);
   }
+
+  /* Photo always appears before the story */
 
   .memory--flipped .memory-figure {
     order: 0;
   }
 
+  /* Keep the image within the mobile screen */
+
+  .memory-figure {
+    width: 100%;
+    max-width: 420px;
+    min-width: 0;
+    margin-inline: auto;
+  }
+
+  /* Preserve portrait proportions */
+
   .memory-photo,
   .memory-empty {
-    aspect-ratio: 5 / 4;
-    transform: rotate(-0.7deg);
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 4 / 5;
+    box-sizing: border-box;
+    transform: rotate(-0.5deg);
   }
 
   .memory--flipped .memory-photo,
   .memory--flipped .memory-empty {
-    transform: rotate(0.8deg);
+    transform: rotate(0.5deg);
   }
 
-  /* Keep the last photo's custom crop on mobile too */
+  /* Consistent image cropping on mobile */
+
+  .memory-photo {
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  /* Special positioning for the last photo */
+
   .memory-photo[src$="img12.jpeg"] {
     object-position: center 20%;
+  }
+
+  /* Keep story text within the screen */
+
+  .memory-story {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .memory-title,
+  .memory-text {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ─── Small mobile screens ────────────────────────────────────────────── */
+
+@media (max-width: 380px) {
+  .memory {
+    gap: 1rem;
+    padding-block: 1.75rem;
+  }
+
+  .memory-figure {
+    max-width: 100%;
+  }
+
+  .memory-photo,
+  .memory-empty {
+    aspect-ratio: 4 / 5;
   }
 }
 
